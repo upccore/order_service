@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from src.application.usecases.create_order import CreateOrderUseCase
 from src.application.usecases.get_order import GetOrderUseCase
 from src.domain.exceptions import InsufficientStockError, OrderNotFoundError
-from src.presentation.api.dependencies import get_create_order_use_case, get_get_order_use_case
+from src.presentation.api.dependencies import (
+    get_create_order_use_case,
+    get_get_order_use_case,
+)
 from src.presentation.api.schemas import CreateOrderRequest, OrderResponse
 
 router = APIRouter(prefix="/api/orders")

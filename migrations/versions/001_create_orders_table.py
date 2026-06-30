@@ -17,8 +17,12 @@ def upgrade() -> None:
         sa.Column("quantity", sa.Integer, nullable=False),
         sa.Column("status", sa.Text, nullable=False),
         sa.Column("idempotency_key", sa.Text, nullable=False, unique=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now()
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now()
+        ),
     )
 
 

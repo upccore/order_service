@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from src.application.ports.uow import UnitOfWork as UnitOfWorkPort, UnitOfWorkContext
+from src.application.ports.uow import UnitOfWork as UnitOfWorkPort
+from src.application.ports.uow import UnitOfWorkContext
 from src.infrastructure.persistence.repositories import OrderRepository
 
 
