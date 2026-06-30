@@ -26,6 +26,8 @@ async def create_order(
         return OrderResponse(**order.__dict__)
     except InsufficientStockError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.get("/{order_id}", response_model=OrderResponse)
