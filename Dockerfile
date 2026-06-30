@@ -13,4 +13,4 @@ COPY --chown=appuser:appuser bin/ ./bin/
 
 USER appuser
 
-CMD ["python", "-m", "bin.api"]
+CMD ["python", "bin/api.py"]
