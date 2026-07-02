@@ -50,14 +50,23 @@ async def debug_list_services():
         return {"ok": False, "error": f"no service account mounted: {e}"}
 
     url = f"https://kubernetes.default.svc/api/v1/namespaces/{namespace}/services"
-    async with httpx.AsyncClient(timeout=5.0, verify=ca_path) as client:
-        try:
+    try:
+        async with httpx.AsyncClient(timeout=5.0, verify=ca_path) as client:
             resp = await client.get(url, headers={"Authorization": f"Bearer {token}"})
-            data = resp.json()
+            try:
+                data = resp.json()
+            except Exception:
+                return {
+                    "ok": False,
+                    "status": resp.status_code,
+                    "body": resp.text[:500],
+                }
+            if resp.status_code != 200:
+                return {"ok": False, "status": resp.status_code, "body": data}
             names = [item["metadata"]["name"] for item in data.get("items", [])]
             return {"ok": True, "namespace": namespace, "services": names}
-        except Exception as e:
-            return {"ok": False, "error": str(e)}
+    except Exception as e:
+        return {"ok": False, "error_type": type(e).__name__, "error": repr(e)}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=OrderResponse)
