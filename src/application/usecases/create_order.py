@@ -1,13 +1,21 @@
 from src.application.ports.catalog_client import CatalogClient
+from src.application.ports.payments_client import PaymentCreationError, PaymentsClient
 from src.application.ports.uow import UnitOfWork
-from src.domain.entities import Order
+from src.domain.entities import Order, OrderStatus
 from src.domain.exceptions import InsufficientStockError
+from src.settings import settings
 
 
 class CreateOrderUseCase:
-    def __init__(self, uow: UnitOfWork, catalog: CatalogClient) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        catalog: CatalogClient,
+        payments: PaymentsClient,
+    ) -> None:
         self._uow = uow
         self._catalog = catalog
+        self._payments = payments
 
     async def __call__(
         self,
@@ -35,4 +43,18 @@ class CreateOrderUseCase:
                 idempotency_key=idempotency_key,
             )
             await ctx.commit()
-            return order
+
+        callback_url = f"{settings.callback_base_url}/api/orders/payment-callback"
+        try:
+            await self._payments.create_payment(
+                order_id=order.id,
+                amount=item.price * quantity,
+                callback_url=callback_url,
+                idempotency_key=idempotency_key,
+            )
+        except PaymentCreationError:
+            async with self._uow() as ctx:
+                order = await ctx.orders.update_status(order.id, OrderStatus.CANCELLED)
+                await ctx.commit()
+
+        return order

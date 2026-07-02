@@ -11,6 +11,10 @@ class PaymentResponse:
     status: str
 
 
+class PaymentCreationError(Exception):
+    """Не удалось создать платёж в Payments Service"""
+
+
 class PaymentsClient(ABC):
 
     @abstractmethod
