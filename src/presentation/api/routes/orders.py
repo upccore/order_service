@@ -34,6 +34,32 @@ async def debug_self_check():
             return {"ok": False, "url": url, "error": str(e)}
 
 
+@router.get("/debug/list-services")
+async def debug_list_services():
+    """Временная диагностика: список Service в собственном namespace через K8s API."""
+    token_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    ns_path = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+    ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+
+    try:
+        with open(token_path) as f:
+            token = f.read().strip()
+        with open(ns_path) as f:
+            namespace = f.read().strip()
+    except OSError as e:
+        return {"ok": False, "error": f"no service account mounted: {e}"}
+
+    url = f"https://kubernetes.default.svc/api/v1/namespaces/{namespace}/services"
+    async with httpx.AsyncClient(timeout=5.0, verify=ca_path) as client:
+        try:
+            resp = await client.get(url, headers={"Authorization": f"Bearer {token}"})
+            data = resp.json()
+            names = [item["metadata"]["name"] for item in data.get("items", [])]
+            return {"ok": True, "namespace": namespace, "services": names}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=OrderResponse)
 async def create_order(
     body: CreateOrderRequest,
