@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     payments_base_url: str
     payments_api_key: str
     callback_base_url: str
+    kafka_bootstrap_servers: str
 
     @property
     def database_url(self) -> str:
