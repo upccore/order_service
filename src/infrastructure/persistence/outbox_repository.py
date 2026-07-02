@@ -16,7 +16,9 @@ class OutboxRepository(OutboxRepositoryPort):
         self._session = session
 
     async def add(self, event_type: str, payload: dict[str, Any]) -> None:
-        model = OutboxEventModel(id=uuid.uuid4(), event_type=event_type, payload=payload)
+        model = OutboxEventModel(
+            id=uuid.uuid4(), event_type=event_type, payload=payload
+        )
         self._session.add(model)
         await self._session.flush()
 

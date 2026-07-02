@@ -2,7 +2,6 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
 from src.infrastructure.kafka.consumer import run_shipment_consumer
 from src.infrastructure.kafka.outbox_publisher import run_outbox_publisher
 from src.infrastructure.kafka.producer import KafkaEventPublisher

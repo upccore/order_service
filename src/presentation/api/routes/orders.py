@@ -59,7 +59,11 @@ async def payment_callback(
     ),
 ):
     try:
-        await use_case(order_id=body.order_id, status=body.status)
+        await use_case(
+            order_id=body.order_id,
+            status=body.status,
+            error_message=body.error_message,
+        )
     except OrderNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return {}

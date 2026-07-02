@@ -17,7 +17,9 @@ INITIAL_RETRY_DELAY_SECONDS = 1.0
 class KafkaEventPublisher(EventPublisher):
 
     def __init__(self) -> None:
-        self._producer = AIOKafkaProducer(bootstrap_servers=settings.kafka_bootstrap_servers)
+        self._producer = AIOKafkaProducer(
+            bootstrap_servers=settings.kafka_bootstrap_servers
+        )
 
     async def start(self) -> None:
         delay = INITIAL_RETRY_DELAY_SECONDS
