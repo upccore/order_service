@@ -1,12 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.application.usecases.create_order import CreateOrderUseCase
 from src.application.usecases.get_order import GetOrderUseCase
+from src.application.usecases.process_payment_callback import (
+    ProcessPaymentCallbackUseCase,
+)
 from src.domain.exceptions import InsufficientStockError, OrderNotFoundError
 from src.presentation.api.dependencies import (
     get_create_order_use_case,
     get_get_order_use_case,
+    get_process_payment_callback_use_case,
 )
-from src.presentation.api.schemas import CreateOrderRequest, OrderResponse
+from src.presentation.api.schemas import (
+    CreateOrderRequest,
+    OrderResponse,
+    PaymentCallbackRequest,
+)
 
 router = APIRouter(prefix="/api/orders")
 
@@ -38,3 +46,17 @@ async def get_order(
         return OrderResponse(**order.__dict__)
     except OrderNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.post("/payment-callback", status_code=status.HTTP_200_OK)
+async def payment_callback(
+    body: PaymentCallbackRequest,
+    use_case: ProcessPaymentCallbackUseCase = Depends(
+        get_process_payment_callback_use_case
+    ),
+):
+    try:
+        await use_case(order_id=body.order_id, status=body.status)
+    except OrderNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return {}

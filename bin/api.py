@@ -2,6 +2,8 @@ import uvicorn
 from alembic import command
 from alembic.config import Config
 
+from src.fastapi import create_app
+
 
 def run_migrations() -> None:
     alembic_cfg = Config("alembic.ini")
@@ -11,6 +13,5 @@ def run_migrations() -> None:
 if __name__ == "__main__":
     run_migrations()
 
-    from src.fastapi import create_app
     app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -53,6 +53,22 @@ class OrderRepository(OrderRepositoryPort):
         row = result.scalar_one()
         return self._to_entity(row)
 
+    async def transition_status(
+        self, order_id: str, from_status: OrderStatus, to_status: OrderStatus
+    ) -> Order | None:
+        stmt = (
+            sa.update(OrderModel)
+            .where(
+                OrderModel.id == uuid.UUID(order_id),
+                OrderModel.status == from_status,
+            )
+            .values(status=to_status)
+            .returning(OrderModel)
+        )
+        result = await self._session.execute(stmt)
+        row = result.scalar_one_or_none()
+        return self._to_entity(row) if row else None
+
     @staticmethod
     def _to_entity(model: OrderModel) -> Order:
         return Order(

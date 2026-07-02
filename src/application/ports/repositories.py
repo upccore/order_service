@@ -22,3 +22,8 @@ class OrderRepository(ABC):
 
     @abstractmethod
     async def update_status(self, order_id: str, status: OrderStatus) -> Order: ...
+
+    @abstractmethod
+    async def transition_status(
+        self, order_id: str, from_status: OrderStatus, to_status: OrderStatus
+    ) -> Order | None: ...
