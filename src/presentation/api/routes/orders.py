@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from src.application.ports.catalog_client import CatalogServiceError
 from src.application.usecases.create_order import CreateOrderUseCase
 from src.application.usecases.get_order import GetOrderUseCase
 from src.application.usecases.process_payment_callback import (
@@ -34,6 +35,8 @@ async def create_order(
         return OrderResponse(**order.__dict__)
     except InsufficientStockError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except CatalogServiceError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
 
 
 @router.get("/{order_id}", response_model=OrderResponse)

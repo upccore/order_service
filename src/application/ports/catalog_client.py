@@ -11,6 +11,10 @@ class CatalogItem:
     available_qty: int
 
 
+class CatalogServiceError(Exception):
+    """Не удалось получить товар из Catalog Service"""
+
+
 class CatalogClient(ABC):
 
     @abstractmethod
