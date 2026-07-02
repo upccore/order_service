@@ -6,8 +6,8 @@ from src.domain.entities import Order, OrderStatus
 from src.domain.exceptions import InsufficientStockError
 from src.settings import settings
 
-NEW_ORDER_MESSAGE = "Ваш заказ создан и ожидает оплаты"
-PAYMENT_FAILED_MESSAGE = "Ваш заказ отменен. Причина: не удалось создать платёж"
+NEW_ORDER_MESSAGE = "NEW: Ваш заказ создан и ожидает оплаты"
+PAYMENT_FAILED_MESSAGE = "CANCELLED: Ваш заказ отменен. Причина: не удалось создать платёж"
 
 
 class CreateOrderUseCase:

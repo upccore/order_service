@@ -7,7 +7,7 @@ EVENT_STATUS_MAP = {
     "order.cancelled": OrderStatus.CANCELLED,
 }
 
-SHIPPED_MESSAGE = "Ваш заказ отправлен в доставку"
+SHIPPED_MESSAGE = "SHIPPED: Ваш заказ отправлен в доставку"
 
 
 class ProcessShipmentEventUseCase:
@@ -40,7 +40,7 @@ class ProcessShipmentEventUseCase:
         if new_status == OrderStatus.SHIPPED:
             message = SHIPPED_MESSAGE
         else:
-            message = f"Ваш заказ отменен. Причина: {event.get('reason', '')}"
+            message = f"CANCELLED: Ваш заказ отменен. Причина: {event.get('reason', '')}"
 
         await self._notifications.send(
             message=message,

@@ -4,7 +4,7 @@ from src.domain.entities import OrderStatus
 from src.domain.exceptions import OrderNotFoundError
 
 ORDER_PAID_EVENT_TYPE = "order.paid"
-PAID_MESSAGE = "Ваш заказ успешно оплачен и готов к отправке"
+PAID_MESSAGE = "PAID: Ваш заказ успешно оплачен и готов к отправке"
 
 
 class ProcessPaymentCallbackUseCase:
@@ -46,7 +46,7 @@ class ProcessPaymentCallbackUseCase:
         if new_status == OrderStatus.PAID:
             message = PAID_MESSAGE
         else:
-            message = f"Ваш заказ отменен. Причина: {error_message or 'ошибка оплаты'}"
+            message = f"CANCELLED: Ваш заказ отменен. Причина: {error_message or 'ошибка оплаты'}"
 
         await self._notifications.send(
             message=message,
