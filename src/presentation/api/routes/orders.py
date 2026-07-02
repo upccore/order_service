@@ -1,3 +1,4 @@
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.application.ports.catalog_client import CatalogServiceError
 from src.application.usecases.create_order import CreateOrderUseCase
@@ -16,8 +17,21 @@ from src.presentation.api.schemas import (
     OrderResponse,
     PaymentCallbackRequest,
 )
+from src.settings import settings
 
 router = APIRouter(prefix="/api/orders")
+
+
+@router.get("/debug/self-check")
+async def debug_self_check():
+    """Временная диагностика связности CALLBACK_BASE_URL. Убрать после отладки."""
+    url = f"{settings.callback_base_url}/openapi.json"
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        try:
+            resp = await client.get(url)
+            return {"ok": True, "url": url, "status": resp.status_code}
+        except Exception as e:
+            return {"ok": False, "url": url, "error": str(e)}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=OrderResponse)
