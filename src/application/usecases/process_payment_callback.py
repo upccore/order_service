@@ -2,6 +2,8 @@ from src.application.ports.uow import UnitOfWork
 from src.domain.entities import OrderStatus
 from src.domain.exceptions import OrderNotFoundError
 
+ORDER_PAID_EVENT_TYPE = "order.paid"
+
 
 class ProcessPaymentCallbackUseCase:
     def __init__(self, uow: UnitOfWork) -> None:
@@ -20,5 +22,18 @@ class ProcessPaymentCallbackUseCase:
             updated = await ctx.orders.transition_status(
                 order_id, from_status=OrderStatus.NEW, to_status=new_status
             )
-            if updated is not None:
-                await ctx.commit()
+            if updated is None:
+                return
+
+            if new_status == OrderStatus.PAID:
+                await ctx.outbox.add(
+                    event_type=ORDER_PAID_EVENT_TYPE,
+                    payload={
+                        "order_id": updated.id,
+                        "item_id": updated.item_id,
+                        "quantity": updated.quantity,
+                        "idempotency_key": updated.idempotency_key,
+                    },
+                )
+
+            await ctx.commit()
