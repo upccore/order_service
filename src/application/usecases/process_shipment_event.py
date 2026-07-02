@@ -40,7 +40,9 @@ class ProcessShipmentEventUseCase:
         if new_status == OrderStatus.SHIPPED:
             message = SHIPPED_MESSAGE
         else:
-            message = f"CANCELLED: Ваш заказ отменен. Причина: {event.get('reason', '')}"
+            message = (
+                f"CANCELLED: Ваш заказ отменен. Причина: {event.get('reason', '')}"
+            )
 
         await self._notifications.send(
             message=message,
