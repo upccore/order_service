@@ -1,4 +1,3 @@
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.application.ports.catalog_client import CatalogServiceError
 from src.application.usecases.create_order import CreateOrderUseCase
@@ -17,56 +16,8 @@ from src.presentation.api.schemas import (
     OrderResponse,
     PaymentCallbackRequest,
 )
-from src.settings import settings
 
 router = APIRouter(prefix="/api/orders")
-
-
-@router.get("/debug/self-check")
-async def debug_self_check():
-    """Временная диагностика связности CALLBACK_BASE_URL. Убрать после отладки."""
-    url = f"{settings.callback_base_url}/openapi.json"
-    async with httpx.AsyncClient(timeout=5.0) as client:
-        try:
-            resp = await client.get(url)
-            return {"ok": True, "url": url, "status": resp.status_code}
-        except Exception as e:
-            return {"ok": False, "url": url, "error": str(e)}
-
-
-@router.get("/debug/list-services")
-async def debug_list_services():
-    """Временная диагностика: список Service в собственном namespace через K8s API."""
-    token_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-    ns_path = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
-    ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-
-    try:
-        with open(token_path) as f:
-            token = f.read().strip()
-        with open(ns_path) as f:
-            namespace = f.read().strip()
-    except OSError as e:
-        return {"ok": False, "error": f"no service account mounted: {e}"}
-
-    url = f"https://kubernetes.default.svc/api/v1/namespaces/{namespace}/services"
-    try:
-        async with httpx.AsyncClient(timeout=5.0, verify=ca_path) as client:
-            resp = await client.get(url, headers={"Authorization": f"Bearer {token}"})
-            try:
-                data = resp.json()
-            except Exception:
-                return {
-                    "ok": False,
-                    "status": resp.status_code,
-                    "body": resp.text[:500],
-                }
-            if resp.status_code != 200:
-                return {"ok": False, "status": resp.status_code, "body": data}
-            names = [item["metadata"]["name"] for item in data.get("items", [])]
-            return {"ok": True, "namespace": namespace, "services": names}
-    except Exception as e:
-        return {"ok": False, "error_type": type(e).__name__, "error": repr(e)}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=OrderResponse)
