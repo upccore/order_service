@@ -1,5 +1,6 @@
 import uuid
 
+import sqlalchemy as sa
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,6 +41,17 @@ class OrderRepository(OrderRepositoryPort):
         stmt = select(OrderModel).where(OrderModel.idempotency_key == key)
         result = (await self._session.execute(stmt)).scalar_one_or_none()
         return self._to_entity(result) if result else None
+
+    async def update_status(self, order_id: str, status: OrderStatus) -> Order:
+        stmt = (
+            sa.update(OrderModel)
+            .where(OrderModel.id == uuid.UUID(order_id))
+            .values(status=status)
+            .returning(OrderModel)
+        )
+        result = await self._session.execute(stmt)
+        row = result.scalar_one()
+        return self._to_entity(row)
 
     @staticmethod
     def _to_entity(model: OrderModel) -> Order:

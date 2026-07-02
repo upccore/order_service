@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.entities import Order
+from src.domain.entities import Order, OrderStatus
 
 
 class OrderRepository(ABC):
@@ -19,3 +19,6 @@ class OrderRepository(ABC):
 
     @abstractmethod
     async def get_by_idempotency_key(self, key: str) -> Order | None: ...
+
+    @abstractmethod
+    async def update_status(self, order_id: str, status: OrderStatus) -> Order: ...
