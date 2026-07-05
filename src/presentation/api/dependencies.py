@@ -14,10 +14,7 @@ def get_create_order_use_case() -> CreateOrderUseCase:
     uow = UnitOfWork(session_factory)
     catalog = HttpCatalogClient()
     payments = HttpPaymentsClient()
-    notifications = HttpNotificationsClient()
-    return CreateOrderUseCase(
-        uow=uow, catalog=catalog, payments=payments, notifications=notifications
-    )
+    return CreateOrderUseCase(uow=uow, catalog=catalog, payments=payments)
 
 
 def get_get_order_use_case() -> GetOrderUseCase:

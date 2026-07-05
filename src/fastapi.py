@@ -2,6 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from src.infrastructure.http.notifications_client import HttpNotificationsClient
 from src.infrastructure.kafka.consumer import run_shipment_consumer
 from src.infrastructure.kafka.outbox_publisher import run_outbox_publisher
 from src.infrastructure.kafka.producer import KafkaEventPublisher
@@ -15,9 +16,10 @@ async def lifespan(app: FastAPI):
     publisher = KafkaEventPublisher()
     await publisher.start()
     uow = UnitOfWork(session_factory)
+    notifications = HttpNotificationsClient()
 
     background_tasks = [
-        asyncio.create_task(run_outbox_publisher(uow, publisher)),
+        asyncio.create_task(run_outbox_publisher(uow, publisher, notifications)),
         asyncio.create_task(run_shipment_consumer(uow)),
     ]
 
