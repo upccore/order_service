@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from urllib.parse import urljoin
 
 import httpx
 
@@ -19,7 +20,7 @@ class HttpNotificationsClient(NotificationsClient):
             try:
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     response = await client.post(
-                        f"{settings.notifications_base_url}/api/notifications",
+                        urljoin(settings.notifications_base_url, "/api/notifications"),
                         headers={"X-API-Key": settings.notifications_api_key},
                         json={
                             "message": message,

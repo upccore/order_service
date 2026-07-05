@@ -1,4 +1,5 @@
 from decimal import Decimal
+from urllib.parse import urljoin
 
 import httpx
 
@@ -22,7 +23,7 @@ class HttpPaymentsClient(PaymentsClient):
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.post(
-                    f"{settings.payments_base_url}/api/payments",
+                    urljoin(settings.payments_base_url, "/api/payments"),
                     headers={"X-API-Key": settings.payments_api_key},
                     json={
                         "order_id": order_id,

@@ -1,4 +1,5 @@
 from decimal import Decimal
+from urllib.parse import urljoin
 
 import httpx
 
@@ -16,7 +17,7 @@ class HttpCatalogClient(CatalogClient):
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(
-                    f"{settings.catalog_base_url}/api/catalog/items/{item_id}",
+                    urljoin(settings.catalog_base_url, f"/api/catalog/items/{item_id}"),
                     headers={"X-API-Key": settings.catalog_api_key},
                 )
                 response.raise_for_status()
